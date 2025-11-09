@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>英単語復習モード</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+    #choices button { display: block; margin: 8px auto; padding: 10px 20px; font-size: 16px; }
+    #backBtn {
+      position: fixed;
+      top: 10px;       /* 左上に固定 */
+      left: 10px;
+      width: 40px;     /* 正方形にして丸くする */
+      height: 40px;
+      border-radius: 50%; /* 丸ボタン */
+      border: none;
+      background-color: #eee; /* 背景色はお好みで */
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background-color 0.2s;
+    }
+    #backBtn:hover {
+      background-color: #ddd; /* ホバー時の色変化 */
+    }
+  </style>
+</head>
+<body>
+  <h1>英単語復習モード</h1>
+  <div id="question" style="font-size:20px; margin:20px;"></div>
+  <div id="choices"></div>
+  <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+
+  <button id="backBtn" onclick="location.href='index.html'">＜</button>
+
+  <script>
+  // 英単語・定義（英語）・意味（日本語）
+  const wordPairs = [
+        { en: "serendipity", def: "When interesting or valuable discoveries are made by accident.", jp: "思いがけない発見・幸運な偶然" },
+        { en: "unexpected", def: "Used to describe something that is surprising because you didn’t think it would happen.", jp: "予期しない・思いがけない" },
+        { en: "discovery", def: "A fact or thing that someone finds out about, when it was not known about before.", jp: "発見" },
+        { en: "Persian", def: "Relating to Iran, its people, or its language, especially in the time when it was called Persia.", jp: "ペルシャの・ペルシャ人" },
+        { en: "prince", def: "The son of a king, queen, or prince.", jp: "王子" },
+        { en: "quest", def: "A long search for something that is difficult to find or obtain.", jp: "探求・探索" },
+        { en: "describe", def: "To say what someone or something is like by giving details about them.", jp: "描写する・説明する" },
+        { en: "ability", def: "The state of being able to do something.", jp: "能力・できること" },
+        { en: "innovation", def: "A new idea, method, or invention.", jp: "革新・新しい発明" },
+        { en: "inspiration", def: "A good idea about what you should do, write, say, etc., especially one which you get suddenly.", jp: "ひらめき・着想" },
+        { en: "failure", def: "Someone or something that is not successful.", jp: "失敗・不成功" },
+        { en: "self-sticky", def: "Capable of adhering to a surface only through application of pressure without the addition of moisture.", jp: "自己接着性の" },
+        { en: "slip", def: "A small or narrow piece of paper.", jp: "詩篇" },
+        { en: "folder", def: "A container for keeping loose papers in, made of heavy paper or plastic.", jp: "フォルダー・書類入れ" },
+        { en: "refrigerator", def: "A large piece of electrical kitchen equipment, shaped like a large box, used for keeping food and drink cool.", jp: "クーラー・保冷容器" },
+        { en: "choir", def: "A group of people who sing together for other people to listen to.", jp: "合唱団・聖歌隊" },
+        { en: "adhesive", def: "A substance such as glue that you use to stick two things together.", jp: "接着剤" },
+        { en: "bond", def: "To join firmly to something else.", jp: "くっつく・絆" },
+        { en: "permanently", def: "Always, or for a very long time.", jp: "永久に" },
+        { en: "marker", def: "An object, sign, etc. that shows the position of something.", jp: "目印・標識" },
+        { en: "attach", def: "To fasten or connect one object to another.", jp: "接続する・つなぐ" },
+        { en: "temporary", def: "Continuing for only a limited period of time.", jp: "一時的な" },
+        { en: "bookmark", def: "A piece of paper, leather, etc. that you put in a book to show you the last page you have read.", jp: "しおり" },
+        { en: "attachment", def: "When you fasten or connect one thing to another, or the thing that you use to do this.", jp: "付属物・添付" },
+        { en: "removal", def: "When something is taken away from, out of, or off the place where it is.", jp: "除去・取り外し" },
+        { en: "setback", def: "A problem that delays or prevents progress, or makes things worse than they were.", jp: "挫折・妨害・後退" },
+        { en: "experiment", def: "A scientific test done to find out how something reacts under certain conditions, or to find out if a particular idea is true.", jp: "実験" },
+        { en: "temporary", def: "Continuing for only a limited period of time.", jp: "一時的な" },
+        { en: "permanent", def: "Continuing to exist for a long time or for all the time in the future.", jp: "永久の・永続的な" },
+        { en: "sticky", def: "Made of or covered with a substance that sticks to surfaces.", jp: "粘着性の・べたべたする" },
+        { en: "commonly", def: "In many places, or in large numbers.", jp: "一般的に・広く" },
+        { en: "wounded", def: "Injured by a weapon such as a gun or knife.", jp: "負傷した" },
+        { en: "antiseptic", def: "Medicine that you put onto a wound to stop it from becoming infected.", jp: "防腐剤" },
+        { en: "cure", def: "To make an illness or medical condition go away.", jp: "治す・治療する" },
+        { en: "observe", def: "To watch something carefully for a period of time in order to learn about that thing.", jp: "観察する" },
+        { en: "harm", def: "Damage, injury, or trouble caused by someone’s actions or by an event.", jp: "害・損害" },
+        { en: "bacteria", def: "Very small living things, some of which cause illness or disease.", jp: "細菌" },
+        { en: "defender", def: "Someone who protects a place against attack, or who believes in and supports a person, idea, plan, etc.", jp: "守る人・擁護者" },
+        { en: "liquid", def: "A substance that can flow and is not a solid or a gas, for example, water or milk.", jp: "液体" },
+        { en: "examine", def: "To look at something carefully and thoroughly because you want to find out more about it.", jp: "調べる・検査する" },
+        { en: "observation", def: "The process of watching someone or something carefully for a period of time.", jp: "観察" },
+        { en: "conclusion", def: "Something you decide after considering all the information you have.", jp: "結論" },
+        { en: "substance", def: "A particular type of solid, liquid, or gas.", jp: "物質" },
+        { en: "harmless", def: "Unable or unlikely to hurt anyone or cause damage.", jp: "無害な" },
+        { en: "influenza", def: "An infectious disease that is like a very bad cold.", jp: "インフルエンザ" },
+        { en: "spot", def: "A particular place or area, especially a pleasant place where you spend time.", jp: "場所・地点" },
+        { en: "bit", def: "A small piece of something.", jp: "わずか" },
+        { en: "mold", def: "A soft green, grey, or black substance that grows on food which has been kept too long, and on objects that are in warm, wet air.", jp: "カビ" },
+        { en: "favor", def: "To treat someone much better than others.", jp: "ひいきする・優遇する" },
+        { en: "knowledge", def: "The information, skills, and understanding that you have gained through learning or experience.", jp: "知識" },
+        { en: "breadth", def: "The distance from one side of something to the other.", jp: "幅" },
+        { en: "expected", def: "That you think will happen.", jp: "予期された・期待された" },
+        { en: "fix", def: "To put something firmly in a place so that it will not move.", jp: "固定する" },
+        { en: "enemy", def: "someone who opposes or competes against you in sports or war", jp: "敵"},
+        { en: "rugby", def: "a game played by two teams of 13 or 15 players, using an oval ball which may be kicked or carried", jp: "ラグビー"},
+        { en: "discriminate", def: "to treat one person or group worse than another in an unfair way", jp: "差別する"},
+        { en: "apartheid", def: "the former political system in South Africa in which only white people had full political rights and other people, especially black people, were forced to live in different places from white people and go to separate schools; blacks could not vote.", jp: "アパルトヘイト"},
+        { en: "residence", def: "a house, especially a large or official one", jp: "住宅"},
+        { en: "strictly", def: "in a way that must be obeyed", jp: "厳しく"},
+        { en: "domestically", def: "inside a particular country; not abroad or internationally", jp: "国内で"},
+        { en: "arrest", def: "to capture and take someone to a police station because the police think that person has done something illegal", jp: "〜を逮捕する"},
+        { en: "prison", def: "a building where people are kept as a punishment for a crime they have committed, or while they are waiting for trial", jp: "刑務所"},
+        { en: "captivity", def: "the state of being kept as a prisoner or in a place you cannot escape from", jp: "監禁"},
+        { en: "election", def: "an activity in which people vote to choose someone for an official position", jp: "選挙"},
+        { en: "citizen", def: "someone who lives in a particular town, country, or state and has political rights there", jp: "市民"},
+        { en: "vote", def: "to show which person or party you want, or whether you support a plan, by marking a piece of paper, raising your hand, etc.", jp: "投票する"},
+        { en: "abolish", def: "to officially end a law, system, etc., especially one that has existed for a long time", jp: "〜を廃止する"},
+        { en: "flag", def: "a piece of cloth with a special colored design on it that is the symbol of a particular country or organization, or may have a particular meaning", jp: "旗"},
+        { en: "hardship", def: "something that makes your life difficult or unpleasant, especially a lack of money, or the condition of having a difficult life", jp: "苦難"},
+        { en: "solve", def: "to find or provide a way of dealing with a problem", jp: "〜を解決する"},
+        { en: "conflict", def: "a state of disagreement or argument between people, groups, countries, etc.", jp: "争い・対立"},
+        { en: "unify", def: "to join people, things, parts of a country, etc. together so that they form a single unit", jp: "〜を統一する"},
+        { en: "intimate", def: "private and friendly so that you feel comfortable", jp: "親密な"},
+        { en: "grasp", def: "to completely understand a fact or an idea, especially a complicated one; to take and hold something firmly", jp: "〜を理解する"},
+        { en: "capacity", def: "the amount of space a container, room, etc. has to hold things or people", jp: "容量"},
+        { en: "truly", def: "used to emphasize that a particular statement or feeling is sincere or genuine", jp: "真に"},
+        { en: "guard", def: "someone whose job is to prevent prisoners from escaping; someone whose job is to protect a place or person", jp: "警備員、看守"},
+        { en: "yell", def: "to shout or say something very loudly, especially because you are frightened, angry, or excited", jp: "大声で叫ぶ"},
+        { en: "cheering", def: "loud shouting that shows support, praise, or encouragement for someone", jp: "応援"},
+        { en: "delighted", def: "very pleased and happy", jp: "喜んで"},
+        { en: "honor", def: "to show publicly that someone is respected and admired, especially by praising them or giving them a special title", jp: "敬意を表する、称える"},
+        { en: "represent", def: "to be or act as a symbol of something", jp: "〜を代表する"},
+        { en: "atmosphere", def: "the feeling or mood that you have in a particular place or situation; a feeling between two people or in a group of people", jp: "雰囲気"},
+        { en: "gradually", def: "slowly, over a long period of time; little by little", jp: "徐々に"},
+        { en: "achieve", def: "to successfully complete something or get a good result, especially by working hard", jp: "〜を達成する"},
+        { en: "victory", def: "a situation in which you win a battle, game, election, or dispute", jp: "勝利"},
+        { en: "chant", def: "words or phrases that a group of people shout, say, or sing again and again", jp: "唱える"},
+        { en: "intensity", def: "the state or quality of having a large amount of strength, feeling, or emotion", jp: "強さ、激しさ"},
+        { en: "overtime", def: "a set period of time that is added to the end of a sports game or match if there is no winner at the end of regular time", jp: "延長戦"},
+        { en: "reply", def: "to answer someone by saying or writing something", jp: "返事をする"}
+      ];
+
+
+  // 復習対象を抽出
+  function getWeakWords(threshold = 70) {
+    const stats = JSON.parse(localStorage.getItem("stats_english")) || {};
+    let weakList = [];
+    for (let [word, data] of Object.entries(stats)) {
+      const total = data.correct + data.wrong;
+      if (total === 0) continue;
+      const rate = (data.correct / total) * 100;
+      if (rate < threshold) {
+        const def = wordPairs.find(w => w.en === word)?.def || "";
+        weakList.push({ en: word, jp: data.meaning, def, rate });
+      }
+    }
+    return weakList;
+  }
+
+  const weakWords = getWeakWords(50); // 正答率50％未満を対象
+  const questionDiv = document.getElementById("question");
+  const choicesDiv  = document.getElementById("choices");
+  const resultDiv   = document.getElementById("result");
+
+  function updateStats(mode, word, meaning, isCorrect) {
+    const key = "stats_" + mode;
+    let stats = JSON.parse(localStorage.getItem(key)) || {};
+    if (!stats[word]) stats[word] = { meaning: meaning, correct: 0, wrong: 0 };
+    if (isCorrect) stats[word].correct++;
+    else stats[word].wrong++;
+    localStorage.setItem(key, JSON.stringify(stats));
+  }
+
+  function showQuestion() {
+    resultDiv.textContent = "";
+    choicesDiv.innerHTML = "";
+
+    if (weakWords.length === 0) {
+      questionDiv.textContent = "苦手単語はありません！";
+      return;
+    }
+
+    const qIndex   = Math.floor(Math.random() * weakWords.length);
+    const question = weakWords[qIndex];
+    questionDiv.textContent = question.def || "(定義未登録)"; // 出題は英語の定義
+
+    // --- 無限ループを防ぐ安全な選択肢生成 ---
+    const allEN   = wordPairs.map(w => w.en);
+    const pool    = [...new Set([...weakWords.map(w => w.en), ...allEN])]
+                      .filter(w => w !== question.en);
+
+    const distractors = pool.sort(() => Math.random() - 0.5).slice(0, 3);
+    let options = [question.en, ...distractors];
+
+    if (options.length < 4) {
+      const extraPool = allEN.filter(w => w !== question.en && !options.includes(w));
+      const padding   = extraPool.sort(() => Math.random() - 0.5).slice(0, 4 - options.length);
+      options = [...options, ...padding];
+    }
+
+    options = options.sort(() => Math.random() - 0.5);
+    // ----------------------------------------
+
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.onclick = () => {
+        const correct = (opt === question.en);
+        if (correct) {
+          resultDiv.textContent = `正解！\n${question.def}\n→ 日本語: ${question.jp}`;
+        } else {
+          resultDiv.textContent = `不正解… 正解は「${question.en}」\n${question.def}\n→ 日本語: ${question.jp}`;
+        }
+        updateStats("english", question.en, question.jp, correct);
+        setTimeout(showQuestion, 2000);
+      };
+      choicesDiv.appendChild(btn);
+    });
+  }
+
+  showQuestion();
+</script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>古文単語復習モード</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 40px;}
+    #choices button { display: block; margin: 8px auto; padding: 10px 20px; font-size: 16px; }
+    #backBtn {
+      position: fixed;
+      top: 10px;       /* 左上に固定 */
+      left: 10px;
+      width: 40px;     /* 正方形にして丸くする */
+      height: 40px;
+      border-radius: 50%; /* 丸ボタン */
+      border: none;
+      background-color: #eee; /* 背景色はお好みで */
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background-color 0.2s;
+    }
+    #backBtn:hover {
+      background-color: #ddd; /* ホバー時の色変化 */
+    }
+  </style>
+</head>
+<body>
+  <h1>古文単語復習モード</h1>
+  <div id="question" style="font-size:24px; margin:20px;"></div>
+  <div id="choices"></div>
+  <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+
+  <button id="backBtn" onclick="location.href='index.html'">＜</button>
+
+  <script>
+    // 通常モードと同じ問題セット
+    const quizData = [
+      {
+        question: "二千人の人を、竹取が家に(つかはす)。",
+        choices: ["ご覧になる", "お預けになる", "おやりになる", "とどめなさる"],
+        answer: "おやりになる",
+        koword: "つかはす"
+      },
+      {
+        question: "憶良らは今は(まから)む子泣くらむ。",
+        choices: ["退出する", "お参りする", "お休みする", "お止めする"],
+        answer: "退出する",
+        koword: "まからむ"
+      },
+      {
+        question: "かぐや姫をえ戦ひ止めずなりぬること、こまごまと(奏す)。",
+        choices: ["(宮中に)申し上げる", "(春宮に)申し上げる", "(皇后に)申し上げる", "(天皇に)申し上げる"],
+        answer: "(天皇に)申し上げる",
+        koword: "奏す" 
+      },
+      {
+        question: "親王、(大殿ごも)らで明かしたまうてけり。",
+        choices: ["召し上がる", "お出かけになる", "お話になる", "お休みになる"],
+        answer: "お休みになる",
+        koword: "大殿ごもる"
+      },
+      {
+        question: "天皇の、天の下(しろしめす)こと、四つの時、九帰りになむなりぬる。",
+        choices: ["支え申し上げる", "お治めになる", "治め申し上げる", "お支えになる"],
+        answer: "お治めになる",
+        koword: "しろしめす" 
+      },
+      {
+        question: "その秋、住吉に(詣で給ふ)。",
+        choices: ["ご参詣になる", "ご招待になる", "ご命令になる", "ご参上になる"],
+        answer: "ご参詣になる",
+        koword: "詣で給ふ"
+      },
+      {
+        question: "大御酒(まゐり)、御遊びなどし給ふ。",
+        choices: ["お与えになる", "頂戴する", "召し上がる", "差し上げる"],
+        answer: "召し上がる",
+        koword: "まゐる"
+      },
+      {
+        question: "「さること(候ひ)き」と申す。",
+        choices: ["あります", "お話されます", "いらっしゃる", "おできになる"],
+        answer: "あります",
+        koword: "候ふ"
+      },
+      {
+        question: "はや、この皇子にあひ(つかまつり)給へ。",
+        choices: ["お仕えする", "いただく", "申し上げる", "あげる"],
+        answer: "申し上げる",
+        koword: "つかうまつる"
+      },
+      {
+        question: "藤壺の宮、なやみ給ふことありて、(まかで)給へり。",
+        choices: ["お召す", "退出する", "申し上げる", "お参りする"],
+        answer: "退出する",
+        koword: "まかづ"
+      },
+      {
+        question: "その郎等を(召す)に、跡をくらみて失せぬ。",
+        choices: ["おつかわしになる", "ご覧になる", "お仕えさせる", "お呼び寄せになる"],
+        answer: "お呼び寄せになる",
+        koword: "召す"
+      },
+      {
+        question: "御硯召し寄せて、みづから御返事(あそばされ)けり。",
+        choices: ["楽しまれる", "差し上げる", "なさる", "読まれる"],
+        answer: "なさる",
+        koword: "あそばす"
+      },
+      {
+        question: "薬の壺に御文添へて(参らす)。",
+        choices: ["差し上げる", "お尋ねする", "お伺いする", "奏上する"],
+        answer: "差し上げる",
+        koword: "参らす"
+      },
+      {
+        question: "おほやけも(行幸)せしめたまふ。",
+        choices: ["お治め", "お出かけ", "表敬", "参上"],
+        answer: "お出かけ",
+        koword: "行幸"
+      },
+      {
+        question: "よきに奏し給へ、(啓し)給へ。",
+        choices: ["(法皇に)申し上げる", "(宮中に)申し上げる", "(大臣に)申し上げる", "(皇后に)申し上げる"],
+        answer: "(皇后に)申し上げる",
+        koword: "啓す"
+      },
+    ];
+
+
+    const questionDiv = document.getElementById("question");
+    const choicesDiv  = document.getElementById("choices");
+    const resultDiv   = document.getElementById("result");
+
+    // 成績データから正答率 threshold 未満の単語を抽出
+    function getWeakQuestions(threshold = 50) {
+      const stats = JSON.parse(localStorage.getItem("stats_kobun")) || {};
+      let weakList = [];
+      for (let q of quizData) {
+        const data = stats[q.koword];
+        if (!data) continue;
+        const total = data.correct + data.wrong;
+        if (total === 0) continue;
+        const rate = (data.correct / total) * 100;
+        if (rate < threshold) {
+          weakList.push(q);
+        }
+      }
+      return weakList;
+    }
+
+    // 正答率を記録する関数（単語をキーに保存）
+    function updateStats(mode, word, answer, isCorrect) {
+      const key = "stats_" + mode;
+      let stats = JSON.parse(localStorage.getItem(key)) || {};
+      if (!stats[word]) stats[word] = { answer: answer, correct: 0, wrong: 0 };
+      if (isCorrect) stats[word].correct++;
+      else stats[word].wrong++;
+      localStorage.setItem(key, JSON.stringify(stats));
+    }
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function showQuestion() {
+      resultDiv.textContent = "";
+      choicesDiv.innerHTML = "";
+
+      const weakQuestions = getWeakQuestions(50);
+      if (weakQuestions.length === 0) {
+        questionDiv.textContent = "苦手単語はありません！";
+        return;
+      }
+
+      const qIndex = Math.floor(Math.random() * weakQuestions.length);
+      const q = weakQuestions[qIndex];
+
+      questionDiv.textContent = q.question;
+
+      // 選択肢をシャッフル
+      const options = shuffle([...q.choices]);
+
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => {
+          const correct = (opt === q.answer);
+          resultDiv.textContent = correct ? "正解！" : `不正解… 正解は「${q.answer}」`;
+          updateStats("kobun", q.koword, q.answer, correct);
+          setTimeout(showQuestion, 1500);
+        };
+        choicesDiv.appendChild(btn);
+      });
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
