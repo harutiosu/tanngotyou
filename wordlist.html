@@ -16,7 +16,7 @@
     height: 40px;
     border-radius: 50%; /* 丸ボタン */
     border: none;
-    background-color: #eee; /* 背景色はお好みで */
+    background-color: #eee; /* 背景色 */
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
@@ -43,6 +43,7 @@
   <h1>対象単語一覧</h1>
 
   <h2>英単語</h2>
+  <input type="text" id="searchEnglish" placeholder="🔎英単語を検索..." style="margin-bottom:10px;">
   <table id="wordTableEnglish">
     <thead>
       <tr>
@@ -55,6 +56,7 @@
   </table>
 
   <h2>古文単語</h2>
+  <input type="text" id="searchKobun" placeholder="🔎古文単語を検索..." style="margin-bottom:10px;">
   <table id="wordTableKobun">
     <thead>
       <tr>
@@ -291,6 +293,26 @@
       document.getElementById("wordTableKobun").scrollIntoView({ behavior: "smooth" });
     });
 
+    // 英単語検索
+    document.getElementById("searchEnglish").addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      const rows = document.querySelectorAll("#wordTableEnglish tbody tr");
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
+
+    // 古文単語検索
+    document.getElementById("searchKobun").addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      const rows = document.querySelectorAll("#wordTableKobun tbody tr");
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(keyword) ? "" : "none";
+      });
+    });
   </script>
 </body>
+
 </html>
