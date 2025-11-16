@@ -201,7 +201,7 @@
           resultDiv.textContent = `不正解… 正解は「${question.en}」\n${question.def}\n→ 日本語: ${question.jp}`;
         }
         updateStats("english", question.en, question.jp, correct);
-        setTimeout(showQuestion, 2000);
+        setTimeout(showQuestion, 6000);
       };
       choicesDiv.appendChild(btn);
     });
@@ -210,4 +210,5 @@
   showQuestion();
 </script>
 </body>
+
 </html>
