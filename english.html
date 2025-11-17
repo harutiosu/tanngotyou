@@ -24,6 +24,34 @@
     #backBtn:hover {
       background-color: #ddd; /* ホバー時の色変化 */
     }
+
+    /* 左下にモード選択UIを固定 */
+    #modeControls {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 14px;
+      background: #f9f9f9;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: left;
+    }
+
+    /* 「次へ」ボタンは結果欄の直後に自然に出す */
+    #nextBtn {
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #eee;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    #nextBtn:hover {
+      background-color: #ddd;
+    }
   </style>
 </head>
 <body>
@@ -31,6 +59,14 @@
   <div id="question" style="font-size:20px; margin:20px;"></div>
   <div id="choices"></div>
   <div id="result" style="margin-top:20px; font-weight:bold;"></div>
+  <button id="nextBtn" style="display:none;">次へ</button>
+
+  <div id="modeControls">
+    <label><input type="radio" name="mode" value="auto" checked> 自動</label>
+    <input type="number" id="autoSeconds" value="2" min="1" style="width:50px;"> 秒後
+    <br>
+    <label><input type="radio" name="mode" value="manual"> 手動</label>
+  </div>
 
   <button id="backBtn" onclick="location.href='index.html'">＜</button>
 
@@ -132,6 +168,37 @@
     const questionDiv = document.getElementById("question");
     const choicesDiv  = document.getElementById("choices");
     const resultDiv   = document.getElementById("result");
+    const nextBtn     = document.getElementById("nextBtn");
+
+    // 設定を保存する関数
+    function saveSettings() {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const sec  = document.getElementById("autoSeconds").value;
+      const settings = { mode: mode, seconds: sec };
+      localStorage.setItem("quizSettings", JSON.stringify(settings));
+    }
+
+    // 設定を復元する関数
+    function loadSettings() {
+      const saved = JSON.parse(localStorage.getItem("quizSettings"));
+      if (saved) {
+        // モード復元
+        document.querySelector(`input[name="mode"][value="${saved.mode}"]`).checked = true;
+        // 秒数復元
+        document.getElementById("autoSeconds").value = saved.seconds;
+      }
+    }
+
+    // ページ読み込み時に復元
+    window.addEventListener("DOMContentLoaded", loadSettings);
+
+    // ラジオボタン変更時に保存
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener("change", saveSettings);
+    });
+
+    // 秒数入力変更時に保存
+    document.getElementById("autoSeconds").addEventListener("input", saveSettings);
 
     function updateStats(mode, word, meaning, isCorrect) {
       const key = "stats_" + mode;
@@ -169,14 +236,27 @@
             resultDiv.textContent = `不正解… 正解は「${question.en}」\n${question.def}\n→ 日本語: ${question.jp}`;
           }
           updateStats("english", question.en, question.jp, correct);
-          setTimeout(showQuestion, 6000); // 2秒後に次の問題
+          
+          //モードによって次の問題に移る条件を変える
+          const mode = document.querySelector('input[name="mode"]:checked').value;
+          if (mode === "auto") {
+            const sec = parseInt(document.getElementById("autoSeconds").value, 10) || 2;
+            setTimeout(showQuestion, sec * 1000);
+          } else {
+            nextBtn.style.display = "inline-block"; // 手動モードなら「次へ」ボタンを表示
+          }
         };
         choicesDiv.appendChild(btn);
       });
     }
 
+    // 「次へ」ボタンで次の問題へ
+    nextBtn.addEventListener("click", () => {
+      nextBtn.style.display = "none"; // 押したら隠す
+      showQuestion();
+    });
+
     showQuestion();
   </script>
 </body>
-
 </html>
