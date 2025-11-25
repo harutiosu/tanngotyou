@@ -5,7 +5,17 @@
   <title>単語帳ツール</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    button { font-size: 20px; margin: 10px; padding: 10px 20px; }
+    button {
+      font-size: 20px;
+      margin: 10px;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #45a049; }
   </style>
 </head>
 <body>
@@ -21,5 +31,21 @@
   <p>単語一覧が見れます</p>
   <button onclick="location.href='weak.html'">苦手単語集</button>
   <button onclick="location.href='wordlist.html'">単語一覧</button>
+  
+  <div style="margin: 70px auto;">
+    <button style="
+      font-size: 20px;
+      margin: 10px;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      background-color: #f44336;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    " onclick="location.href='https://rekisiobennkyou.netlify.app/index.html'">
+      歴史総合を勉強する
+    </button>
+  </div>
 </body>
 </html>
